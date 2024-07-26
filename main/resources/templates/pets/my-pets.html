@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Pets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+    <style>
+        body {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            min-height: 100vh;
+            padding-top: 56px; /* Space for the navbar */
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin-top: 20px;
+        }
+        .btn-appointment {
+            margin-left: 10px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/home}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/about}">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/users/account}">Account</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post" class="nav-link">
+                        <button type="submit" class="btn btn-link nav-link" style="padding: 0;">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <h2>My Pets</h2>
+    <a th:href="@{/pets/showFormForAdd}" class="btn btn-primary btn-sm btn-custom">Add Pet</a>
+    <a th:href="@{/home}" class="btn btn-secondary">Go Back</a>
+    <table class="table table-striped mt-3">
+        <thead class="table-dark">
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Age</th>
+            <th>Weight</th>
+            <th>Medical Conditions</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="pet : ${pets}">
+            <td th:text="${pet.name}">Name</td>
+            <td th:text="${pet.category}">Category</td>
+            <td th:text="${pet.age}">Age</td>
+            <td th:text="${pet.weight}">Weight</td>
+            <td>
+                <ul>
+                    <li th:each="condition : ${pet.medicalConditions}">
+                        <span th:text="${condition.medicalCondition}">Condition</span>
+                        <div>
+                            <a th:if="${condition.appointment != null}" th:href="@{/appointments/view/{id}(id=${condition.appointment.id})}" class="btn btn-info btn-sm btn-appointment">see appointment</a>
+                            <a th:if="${condition.appointment == null}" th:href="@{/appointments/new}" class="btn btn-danger btn-sm btn-appointment">make an appointment</a>
+                        </div>
+                    </li>
+                </ul>
+            </td>
+            <td>
+                <a th:href="@{/pets/showFormForUpdate(petId=${pet.id})}" class="btn btn-info btn-sm">Update</a>
+                <a th:href="@{/pets/delete(petId=${pet.id})}" class="btn btn-danger btn-sm" onclick="if (!(confirm('Are you sure you want to delete this pet?'))) return false">Delete</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+u2uX+dOJN9+AhGzZGRgNAw6HK8sZ" crossorigin="anonymous"></script>
+</body>
+</html>

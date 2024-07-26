@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>About Us</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
+    <style>
+        body {
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            min-height: 100vh;
+            padding-top: 56px; /* Space for the navbar */
+        }
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            max-width: 1000px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/home}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/about}">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/users/account}">Account</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post" class="nav-link">
+                        <button type="submit" class="btn btn-link nav-link" style="padding: 0;">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <h2>About Us</h2>
+    <hr>
+    <p>
+        Where Pets are Family
+    </p>
+    <hr>
+    <p>
+        Hello! Thank you for visiting our Vet Clinic.
+        Dr. Kara James, Dr. Gary Skinner, and our veterinarians offer quality animal care.
+        Our friendly vet clinic specializes in veterinarian services for dogs, cats, companion, and exotic animals.
+        Both pet owners and animals appreciate the compassionate care given by our experienced staff.
+        Our veterinarians are passionate about making sure your pet receives the best care possible!
+         The entire staff is dedicated to keeping your pets healthy and happy!
+        Contact our veterinarians for more information, and experience the very best in veterinary care.
+    </p>
+</div>
+</body>
+</html>
