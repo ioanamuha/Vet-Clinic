@@ -1,9 +1,9 @@
 USE `finalproject`;
 
+DROP TABLE IF EXISTS `medicalcondition_trial`;
 DROP TABLE IF EXISTS `appointment_trial`;
 DROP TABLE IF EXISTS `docdet_trial`;
 DROP TABLE IF EXISTS `role_trial`;
-DROP TABLE IF EXISTS `medicalcondition_trial`;
 DROP TABLE IF EXISTS `pet_trial`;
 DROP TABLE IF EXISTS `user_trial`;
 
@@ -48,28 +48,30 @@ CREATE TABLE pet_trial (
   FOREIGN KEY (owner_id) REFERENCES user_trial (id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
+-- Appointment table
+CREATE TABLE appointment_trial (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  `interval` INT NOT NULL,
+  day DATE DEFAULT NULL,
+  doctor_id BIGINT NOT NULL,
+  pet_id BIGINT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (doctor_id) REFERENCES user_trial (id),
+  FOREIGN KEY (pet_id) REFERENCES pet_trial (id)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
 -- MedicalCondition table
 CREATE TABLE medicalcondition_trial (
   id BIGINT NOT NULL AUTO_INCREMENT,
-  pet_id BIGINT NOT NULL,
   medical_condition VARCHAR(256) DEFAULT NULL,
   medical_prescription VARCHAR(256) DEFAULT NULL,
-  doctor_id BIGINT DEFAULT NULL,
+  appointment_id BIGINT DEFAULT NULL,
   PRIMARY KEY (id),
-  FOREIGN KEY (pet_id) REFERENCES pet_trial(id),
-  FOREIGN KEY (doctor_id) REFERENCES user_trial(id)
+  FOREIGN KEY (appointment_id) REFERENCES appointment_trial(id)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
--- Appointment table
-CREATE TABLE appointment_trial (
-  id INT NOT NULL AUTO_INCREMENT,
-  `interval` INT NOT NULL,
-  day DATE DEFAULT NULL,
-  medicalcondition_id BIGINT NOT NULL,
-  PRIMARY KEY (id),
-  FOREIGN KEY (medicalcondition_id) REFERENCES medicalcondition_trial (id)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
+-- Insert data into user table
 INSERT INTO user_trial (first_name, last_name, email, password, enabled) VALUES
 ('John', 'Cooper', 'john@mail.com', '{noop}test123', 1),
 ('Tudor', 'Filip', 'tudor@mail.com', '{noop}test123', 1),
@@ -78,6 +80,7 @@ INSERT INTO user_trial (first_name, last_name, email, password, enabled) VALUES
 ('Mary', 'Mooper', 'mary@mail.com', '{noop}test123', 1),
 ('Susan', 'Fooper', 'susan@mail.com', '{noop}test123', 1);
 
+-- Insert data into role table
 INSERT INTO role_trial (user_id, role) VALUES
 (1, 'ROLE_PETOWNER'),
 (2, 'ROLE_PETOWNER'),
@@ -86,6 +89,7 @@ INSERT INTO role_trial (user_id, role) VALUES
 (5, 'ROLE_DOCTOR'),
 (6, 'ROLE_ADMIN');
 
+-- Insert data into doctor details table
 INSERT INTO docdet_trial (user_id, specializare) VALUES
 (1, ''),
 (2, ''),
@@ -94,6 +98,7 @@ INSERT INTO docdet_trial (user_id, specializare) VALUES
 (5, 'Surgery'),
 (6, '');
 
+-- Insert data into pet table
 INSERT INTO pet_trial (name, category, age, weight, owner_id) VALUES
 ('Buddy', 'Dog', 5, 20.5, 1),
 ('Mittens', 'Cat', 3, 4.2, 1),
@@ -101,96 +106,20 @@ INSERT INTO pet_trial (name, category, age, weight, owner_id) VALUES
 ('Bella', 'Dog', 4, 18.0, 2),
 ('Whiskers', 'Cat', 2, 3.5, 2);
 
-INSERT INTO medicalcondition_trial (pet_id, medical_condition, medical_prescription, doctor_id) VALUES
-(1, 'Arthritis', 'Glucosamine supplements', 3),
-(1, 'Obesity', 'Diet control', 3),
-(2, 'Diabetes', 'Insulin injections', 4),
-(3, 'Fin Rot', 'Antibiotics', 3),
-(4, 'Hip Dysplasia', 'Surgery', 5),
-(5, 'Flea Allergy', 'Anti-flea treatment', 4);
+-- Insert data into appointment table
+INSERT INTO appointment_trial (`interval`, day, doctor_id, pet_id) VALUES
+(1, '2024-08-01', 3, 1),
+(2, '2024-08-02', 3, 1),
+(3, '2024-08-03', 4, 2),
+(2, '2024-08-03', 5, 2),
+(1, '2024-08-03', 4, 2),
+(2, '2024-08-01', 3, 1);
 
-INSERT INTO appointment_trial (`interval`, day, medicalcondition_id) VALUES
-(1, '2024-08-01', 1),
-(2, '2024-08-02', 2),
-(3, '2024-08-03', 3),
-(2, '2024-08-03', 4),
-(1, '2024-08-03', 5),
-(2, '2024-08-01', 6);
-
-
-SELECT * FROM finalproject.user_trial;
-
-SELECT * FROM finalproject.docdet_trial;
-
-SELECT * FROM finalproject.role_trial;
-
-SELECT * FROM finalproject.pet_trial;
-
-SELECT * FROM finalproject.medicalcondition_trial;
-
-SELECT * FROM finalproject.appointment_trial;
-
-SELECT email, password FROM user_trial WHERE email = 'mary@mail.com';
-
-SELECT u.email, r.role 
-FROM user_trial u 
-INNER JOIN role_trial r ON u.id = r.user_id;
-
-SELECT u.first_name, u.last_name, r.role, d.specializare 
-FROM user_trial u 
-INNER JOIN docdet_trial d ON u.id = d.user_id
-INNER JOIN role_trial r ON u.id = r.user_id;
-
-SELECT 
-    u.id AS user_id, 
-    u.first_name, 
-    u.last_name, 
-    u.email, 
-    r.role, 
-    d.specializare, 
-    p.id AS pet_id, 
-    p.name AS pet_name, 
-    p.category, 
-    p.age, 
-    p.weight, 
-    m.id AS medicalcondition_id, 
-    m.medical_condition, 
-    m.medical_prescription, 
-    m.doctor_id
-FROM 
-    user_trial u
-INNER JOIN 
-    role_trial r ON u.id = r.user_id AND r.role = 'ROLE_PETOWNER'
-LEFT JOIN 
-    docdet_trial d ON u.id = d.user_id
-LEFT JOIN 
-    pet_trial p ON u.id = p.owner_id
-LEFT JOIN 
-    medicalcondition_trial m ON p.id = m.pet_id
-ORDER BY 
-    u.id, p.id, m.id;
-    
-    
-SELECT
-    a.id AS appointment_id,
-    a.day AS appointment_day,
-    a.interval AS appointment_interval,
-    mc.medical_condition AS medical_condition,
-    mc.medical_prescription AS medical_prescription,
-    p.name AS pet_name,
-    p.category AS pet_category,
-    p.age AS pet_age,
-    p.weight AS pet_weight,
-    u.first_name AS doctor_first_name,
-    u.last_name AS doctor_last_name
-FROM
-    appointment_trial a
-JOIN
-    medicalcondition_trial mc ON a.medicalcondition_id = mc.id
-JOIN
-    pet_trial p ON mc.pet_id = p.id
-JOIN
-    user_trial u ON mc.doctor_id = u.id
-ORDER BY
-    a.day, a.interval;
-
+-- Insert data into medical condition table
+INSERT INTO medicalcondition_trial (medical_condition, medical_prescription, appointment_id) VALUES
+('Arthritis', 'Glucosamine supplements', 1),
+('Obesity', 'Diet control', 2),
+('Diabetes', 'Insulin injections', 3),
+('Fin Rot', 'Antibiotics', 4),
+('Hip Dysplasia', 'Surgery', 5),
+('Flea Allergy', 'Anti-flea treatment', 6);
