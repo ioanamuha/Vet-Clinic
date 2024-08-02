@@ -1,7 +1,8 @@
 package com.finalproject.entity;
 
 import jakarta.persistence.*;
-import java.sql.Date;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "appointment_trial")
@@ -11,19 +12,26 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "interval", nullable = false)
+    @Column(name = "`interval`", nullable = false)
     private Integer interval;
 
     @Column(name = "day")
-    private Date day;
+    private LocalDate day;
 
-    @OneToOne
-    @JoinColumn(name = "medicalcondition_id", nullable = false)
+    @OneToOne(mappedBy = "appointment")
     private MedicalCondition medicalCondition;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    private User doctor;
+
+    @ManyToOne
+    @JoinColumn(name = "pet_id")
+    private Pet pet;
 
     public Appointment() {}
 
-    public Appointment(Integer interval, Date day, MedicalCondition medicalCondition) {
+    public Appointment(Integer interval, LocalDate day, MedicalCondition medicalCondition) {
         this.interval = interval;
         this.day = day;
         this.medicalCondition = medicalCondition;
@@ -45,11 +53,11 @@ public class Appointment {
         this.interval = interval;
     }
 
-    public Date getDay() {
+    public LocalDate getDay() {
         return day;
     }
 
-    public void setDay(Date day) {
+    public void setDay(LocalDate day) {
         this.day = day;
     }
 
@@ -61,6 +69,22 @@ public class Appointment {
         this.medicalCondition = medicalCondition;
     }
 
+    public Pet getPet() {
+        return pet;
+    }
+
+    public void setPet(Pet pet) {
+        this.pet = pet;
+    }
+
+    public User getDoctor() {
+        return doctor;
+    }
+
+    public void setDoctor(User doctor) {
+        this.doctor = doctor;
+    }
+
     @Override
     public String toString() {
         return "Appointment{" +
@@ -70,4 +94,5 @@ public class Appointment {
                 ", medicalCondition=" + medicalCondition +
                 '}';
     }
+
 }

@@ -17,24 +17,15 @@ public class MedicalCondition {
     @Column(name = "medical_prescription")
     private String medicalPrescription;
 
-    @ManyToOne
-    @JoinColumn(name = "pet_id", nullable = false)
-    private Pet pet;
-
-    @ManyToOne
-    @JoinColumn(name = "doctor_id")
-    private User doctor;
-
-    @OneToOne(mappedBy = "medicalCondition")
+    @OneToOne
+    @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
     public MedicalCondition() {}
 
-    public MedicalCondition(String medicalCondition, String medicalPrescription, Pet pet, User doctor) {
+    public MedicalCondition(String medicalCondition, String medicalPrescription) {
         this.medicalCondition = medicalCondition;
         this.medicalPrescription = medicalPrescription;
-        this.pet = pet;
-        this.doctor = doctor;
     }
 
     public Appointment getAppointment() {
@@ -69,30 +60,12 @@ public class MedicalCondition {
         this.medicalPrescription = medicalPrescription;
     }
 
-    public Pet getPet() {
-        return pet;
-    }
-
-    public void setPet(Pet pet) {
-        this.pet = pet;
-    }
-
-    public User getDoctor() {
-        return doctor;
-    }
-
-    public void setDoctor(User doctor) {
-        this.doctor = doctor;
-    }
-
     @Override
     public String toString() {
         return "MedicalCondition{" +
                 "id=" + id +
                 ", medicalCondition='" + medicalCondition + '\'' +
                 ", medicalPrescription='" + medicalPrescription + '\'' +
-                ", pet=" + pet +
-                ", doctor=" + doctor +
                 '}';
     }
 }

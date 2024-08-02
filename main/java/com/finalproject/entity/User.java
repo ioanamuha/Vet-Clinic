@@ -2,7 +2,9 @@ package com.finalproject.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,7 +23,7 @@ public class User {
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
     @Column(name = "password", nullable = false)
@@ -31,13 +33,16 @@ public class User {
     private boolean enabled;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Role> roles = new HashSet<>();
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private DoctorDetails doctorDetails;
+    private Set<Role> roles;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Pet> pets;
+
+    @OneToMany(mappedBy = "doctor")
+    private Set<Appointment> appointments;
+
+    @OneToOne(mappedBy = "user")
+    private DoctorDetails doctorDetails;
 
     public User() {}
 
@@ -107,14 +112,6 @@ public class User {
         this.roles = roles;
     }
 
-    public DoctorDetails getDoctorDetails() {
-        return doctorDetails;
-    }
-
-    public void setDoctorDetails(DoctorDetails doctorDetails) {
-        this.doctorDetails = doctorDetails;
-    }
-
     public Set<Pet> getPets() {
         return pets;
     }
@@ -128,6 +125,26 @@ public class User {
                 .map(Role::getRole)
                 .collect(Collectors.toSet())
                 .contains(roleName);
+    }
+
+    public Set<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(Set<Appointment> appointments) {
+        this.appointments = appointments;
+    }
+
+    public DoctorDetails getDoctorDetails() {
+        return doctorDetails;
+    }
+
+    public void setDoctorDetails(DoctorDetails doctorDetails) {
+        this.doctorDetails = doctorDetails;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
     }
 
     @Override

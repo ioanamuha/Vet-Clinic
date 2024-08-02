@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Add Pet</title>
@@ -36,6 +36,12 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" th:href="@{/about}">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/users/account}">Account</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('PETOWNER')">
+                    <a class="nav-link" th:href="@{/pets/myPets}">My Pets</a>
                 </li>
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post" class="nav-link">

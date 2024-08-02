@@ -15,16 +15,6 @@ public class PetServiceImpl implements PetService {
     private PetRepository petRepository;
 
     @Override
-    public List<Pet> findByOwnerEmail(String email) {
-        return petRepository.findByOwnerEmail(email);
-    }
-
-    @Override
-    public List<Pet> findByOwnerId(long id) {
-        return petRepository.findByOwnerId(id);
-    }
-
-    @Override
     public List<Pet> findByOwner(User user) {
         long id = user.getId();
         return petRepository.findByOwnerId(id);

@@ -1,8 +1,10 @@
 package com.finalproject.controller;
 
+import com.finalproject.entity.Appointment;
 import com.finalproject.entity.MedicalCondition;
 import com.finalproject.entity.Pet;
 import com.finalproject.entity.User;
+import com.finalproject.service.AppointmentService;
 import com.finalproject.service.MedicalConditionService;
 import com.finalproject.service.PetService;
 import com.finalproject.service.UserService;
@@ -29,16 +31,14 @@ public class PetController {
     @Autowired
     private MedicalConditionService medicalConditionService;
 
+    @Autowired
+    private AppointmentService appointmentService;
+
     @GetMapping("/myPets")
     public String listMyPets(Model model, Principal principal) {
         String userEmail = principal.getName();
         User user = userService.findByEmail(userEmail);
         List<Pet> pets = petService.findByOwner(user);
-
-        for (Pet pet : pets) {
-            List<MedicalCondition> conditions = medicalConditionService.findByPet(pet);
-            pet.setMedicalConditions(conditions);
-        }
 
         model.addAttribute("pets", pets);
         return "pets/my-pets";
@@ -79,6 +79,13 @@ public class PetController {
         pet.setOwner(user);
         petService.save(pet);
         return "redirect:/pets/myPets";
+    }
+
+    @GetMapping("/medicalFiles")
+    public String seeMedicalFiles(@RequestParam("petId") Long petId, Model model) {
+        List<MedicalCondition> medicalConditions = medicalConditionService.findByPetId(petId);
+        model.addAttribute("medicalFiles", medicalConditions);
+        return "pets/medical-files";
     }
 
     @PostMapping("/update")

@@ -2,30 +2,24 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Update Pet Information</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Pet Medical File</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
     <style>
         body {
             background: linear-gradient(to right, #4facfe, #00f2fe);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
+            padding-top: 56px;
         }
         .container {
             background: white;
             padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
             max-width: 500px;
-            width: 100%;
+            margin-top: 30px;
+            margin-bottom: 30px;
         }
-        .container h1 {
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-        .btn-primary {
+        .btn-secondary {
             width: 100%;
         }
         .mt-3 a {
@@ -52,6 +46,9 @@
                 <li class="nav-item" sec:authorize="hasRole('PETOWNER')">
                     <a class="nav-link" th:href="@{/pets/myPets}">My Pets</a>
                 </li>
+                <li class="nav-item" sec:authorize="hasRole('DOCTOR')">
+                    <a class="nav-link" th:href="@{/appointments/doctorAppointments}">My Appointments</a>
+                </li>
                 <li class="nav-item">
                     <form th:action="@{/logout}" method="post" class="nav-link">
                         <button type="submit" class="btn btn-link nav-link" style="padding: 0;">Logout</button>
@@ -62,36 +59,30 @@
     </div>
 </nav>
 <div class="container">
-    <h1>Update Pet Information</h1>
-    <form th:action="@{/pets/update}" th:object="${pet}" method="POST">
+    <h1>Pet Medical File</h1>
+    <form th:action="@{/appointments/medicalFileUpdate}" th:object="${appointment}" method="POST">
+        <input type="hidden" th:field="*{id}" />
+        <input type="hidden" th:field="*{medicalCondition.id}" />
+        <input type="hidden" th:field="*{medicalCondition.appointment.id}" />
         <div class="mb-3">
-            <input type="hidden" th:field="*{id}" />
-            <input type="text" th:field="*{name}" class="form-control" placeholder="Name" required>
+            <label for="petName" class="form-label">Pet Name</label>
+            <input type="text" th:field="*{pet.name}" id="petName" class="form-control" placeholder="Name" readonly>
         </div>
         <div class="mb-3">
-            <select id="categorySelect" th:field="*{category}" class="form-control" required>
-                <option value="" disabled selected>Select Category</option>
-                <option value="Cat">Cat</option>
-                <option value="Dog">Dog</option>
-                <option value="Polecat">Polecat</option>
-                <option value="Mouse">Mouse</option>
-                <option value="Parrot">Parrot</option>
-                <option value="Hedgehog">Hedgehog</option>
-                <option value="Guinea Pig">Guinea Pig</option>
-                <option value="Rabbit">Rabbit</option>
-                <option value="Reptile">Reptile</option>
-                <option value="Fish">Fish</option>
-            </select>
+            <label for="medicalCondition" class="form-label">Medical Condition</label>
+            <input type="text" th:field="*{medicalCondition.medicalCondition}" id="medicalCondition" class="form-control" placeholder="Medical Condition" required>
         </div>
         <div class="mb-3">
-            <input type="text" th:field="*{age}" class="form-control" placeholder="Age" required>
+            <label for="prescription" class="form-label">Prescription</label>
+            <input type="text" th:field="*{medicalCondition.medicalPrescription}" id="prescription" class="form-control" placeholder="Prescription" required>
         </div>
         <div class="mb-3">
-            <input type="text" th:field="*{weight}" class="form-control" placeholder="Weight" required>
+            <label for="weight" class="form-label">Pet Weight</label>
+            <input type="text" th:field="*{pet.weight}" id="weight" class="form-control" placeholder="Weight" readonly>
         </div>
-        <button type="submit" class="btn btn-primary w-100">Update Pet</button>
+        <button type="submit" class="btn btn-primary w-100">Update Medical File</button>
         <div class="text-center mt-3">
-            <a th:href="@{/pets/myPets}" class="btn-signup">Back to Pet List</a>
+            <a th:href="@{/appointments/doctorAppointments}" class="btn btn-secondary">Back to Appointments List</a>
         </div>
     </form>
 </div>

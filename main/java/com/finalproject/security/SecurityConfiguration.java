@@ -18,11 +18,9 @@ public class SecurityConfiguration {
     public UserDetailsManager userDetailsManager(DataSource dataSource) {
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
-        // Define query to retrieve a user by email
         jdbcUserDetailsManager.setUsersByUsernameQuery(
                 "select email as username, password as pw, enabled from user_trial where email = ?");
 
-        // Define query to retrieve the authorities/roles by email
         jdbcUserDetailsManager.setAuthoritiesByUsernameQuery(
                 "select user_trial.email as username, role_trial.role as role from user_trial " +
                         "inner join role_trial on user_trial.id = role_trial.user_id where user_trial.email = ?");
@@ -36,7 +34,7 @@ public class SecurityConfiguration {
         http.authorizeRequests(configurer ->
                         configurer
                                 .requestMatchers("/", "/home").hasAnyRole("PETOWNER","DOCTOR","ADMIN")
-                                .requestMatchers("/leaders/**").hasRole("DOCTOR")
+                                .requestMatchers("/appointments/doctorAppointments").hasRole("DOCTOR")
                                 .requestMatchers("/users/list").hasRole("ADMIN")
                                 .requestMatchers("/showMyLoginPage", "/register", "/users/showFormForAdd", "/users/save").permitAll()
                                 .anyRequest().authenticated()

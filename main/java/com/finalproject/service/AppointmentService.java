@@ -2,14 +2,26 @@ package com.finalproject.service;
 
 import com.finalproject.entity.Appointment;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface AppointmentService {
 
-    List<Appointment> findAll();
-    Appointment findById(Long id);
     void save(Appointment appointment);
+
     void deleteById(Long id);
-    List<Appointment> findByOwnerId(Long ownerId);
-    List<Appointment> findByDoctorId(Long doctorId);
+
+    List<Appointment> getAvailableSlots(Long doctorId, LocalDate date);
+
+    void book(Long petId, Long doctorId, LocalDate date, Integer interval, String mail);
+
+    List<Appointment> findAllByPetId(Long petId);
+
+    List<Appointment> findAllByDoctorId(Long doctorId);
+
+    Appointment findById(Long appointmentId);
+
+    void update(Appointment appointment);
+
+    List<Appointment> findAllByOwnerId(Long userId);
 }

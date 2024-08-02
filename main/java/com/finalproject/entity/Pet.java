@@ -30,8 +30,9 @@ public class Pet {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<MedicalCondition> medicalConditions;
+    @OneToMany
+    @JoinColumn(name="appointment_id")
+    private Set<Appointment> appointments;
 
     public Pet() {}
 
@@ -91,12 +92,12 @@ public class Pet {
         return id;
     }
 
-    public List<MedicalCondition> getMedicalConditions() {
-        return medicalConditions;
+    public Set<Appointment> getAppointments() {
+        return appointments;
     }
 
-    public void setMedicalConditions(List<MedicalCondition> medicalConditions) {
-        this.medicalConditions = medicalConditions;
+    public void setAppointments(Set<Appointment> appointments) {
+        this.appointments = appointments;
     }
 
     @Override
