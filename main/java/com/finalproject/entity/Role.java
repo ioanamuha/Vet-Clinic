@@ -3,7 +3,7 @@ package com.finalproject.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "role_trial")
+@Table(name = "role")
 public class Role {
 
     @Id
@@ -14,7 +14,7 @@ public class Role {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

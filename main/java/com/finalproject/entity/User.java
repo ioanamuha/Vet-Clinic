@@ -2,14 +2,11 @@ package com.finalproject.entity;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
-@Table(name = "user_trial")
+@Table(name = "user")
 public class User {
 
     @Id
@@ -32,30 +29,29 @@ public class User {
     @Column(name = "enabled", nullable = false)
     private boolean enabled;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Role> roles;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Role role;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Pet> pets;
+    private List<Pet> pets;
 
-    @OneToMany(mappedBy = "doctor")
-    private Set<Appointment> appointments;
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Appointment> appointments;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private DoctorDetails doctorDetails;
 
     public User() {}
 
-    public User(String firstName, String lastName, String email, String password, boolean enabled, Set<Role> roles) {
+    public User(String firstName, String lastName, String email, String password, boolean enabled, Role role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
         this.enabled = enabled;
-        this.roles = roles;
+        this.role = role;
     }
 
-    // getters and setters
     public Long getId() {
         return id;
     }
@@ -104,34 +100,28 @@ public class User {
         this.enabled = enabled;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
-    public Set<Pet> getPets() {
+    public List<Pet> getPets() {
         return pets;
     }
 
-    public void setPets(Set<Pet> pets) {
+    public void setPets(List<Pet> pets) {
         this.pets = pets;
     }
 
-    public boolean hasRole(String roleName) {
-        return roles.stream()
-                .map(Role::getRole)
-                .collect(Collectors.toSet())
-                .contains(roleName);
-    }
 
-    public Set<Appointment> getAppointments() {
+    public List<Appointment> getAppointments() {
         return appointments;
     }
 
-    public void setAppointments(Set<Appointment> appointments) {
+    public void setAppointments(List<Appointment> appointments) {
         this.appointments = appointments;
     }
 

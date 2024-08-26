@@ -2,11 +2,10 @@ package com.finalproject.entity;
 
 import jakarta.persistence.*;
 
-import java.util.List;
 import java.util.Set;
 
 @Entity
-@Table(name = "pet_trial")
+@Table(name = "pet")
 public class Pet {
 
     @Id
@@ -30,8 +29,7 @@ public class Pet {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany
-    @JoinColumn(name="appointment_id")
+    @OneToMany(mappedBy = "pet")
     private Set<Appointment> appointments;
 
     public Pet() {}

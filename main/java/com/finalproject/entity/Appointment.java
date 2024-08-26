@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "appointment_trial")
+@Table(name = "appointment")
 public class Appointment {
 
     @Id
@@ -18,8 +18,8 @@ public class Appointment {
     @Column(name = "day")
     private LocalDate day;
 
-    @OneToOne(mappedBy = "appointment")
-    private MedicalCondition medicalCondition;
+    @OneToOne(mappedBy = "appointment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private MedicalFile medicalFile;
 
     @ManyToOne
     @JoinColumn(name = "doctor_id")
@@ -31,10 +31,10 @@ public class Appointment {
 
     public Appointment() {}
 
-    public Appointment(Integer interval, LocalDate day, MedicalCondition medicalCondition) {
+    public Appointment(Integer interval, LocalDate day, MedicalFile medicalFile) {
         this.interval = interval;
         this.day = day;
-        this.medicalCondition = medicalCondition;
+        this.medicalFile = medicalFile;
     }
 
     public Long getId() {
@@ -61,12 +61,12 @@ public class Appointment {
         this.day = day;
     }
 
-    public MedicalCondition getMedicalCondition() {
-        return medicalCondition;
+    public MedicalFile getMedicalFile() {
+        return medicalFile;
     }
 
-    public void setMedicalCondition(MedicalCondition medicalCondition) {
-        this.medicalCondition = medicalCondition;
+    public void setMedicalFile(MedicalFile medicalFile) {
+        this.medicalFile = medicalFile;
     }
 
     public Pet getPet() {
@@ -91,7 +91,7 @@ public class Appointment {
                 "id=" + id +
                 ", interval=" + interval +
                 ", day=" + day +
-                ", medicalCondition=" + medicalCondition +
+                ", medicalFile=" + medicalFile +
                 '}';
     }
 

@@ -12,18 +12,26 @@ import org.springframework.ui.Model;
 @Controller
 public class RegisterController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    public RegisterController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/register")
     public String showFormForRegister(Model model) {
         model.addAttribute("user", new User());
-        return "users/user-form";
+        return "register";
     }
 
     @PostMapping("/register")
-    public String saveUser(@ModelAttribute("user") User theUser) {
-        userService.save(theUser);
-        return "redirect:/fancy-login";
+    public String saveUser(@ModelAttribute("user") User theUser, Model model) {
+        if(userService.findByEmail(theUser.getEmail()) != null) {
+            model.addAttribute("exception", true);
+            return "register";
+        } else {
+            userService.save(theUser);
+            return "redirect:/login";
+        }
     }
+
 }

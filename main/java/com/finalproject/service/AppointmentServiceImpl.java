@@ -1,11 +1,8 @@
 package com.finalproject.service;
 
 import com.finalproject.entity.Appointment;
-import com.finalproject.entity.MedicalCondition;
-import com.finalproject.entity.Pet;
 import com.finalproject.entity.User;
 import com.finalproject.repository.AppointmentRepository;
-import com.finalproject.repository.MedicalConditionRepository;
 import com.finalproject.repository.PetRepository;
 import com.finalproject.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,29 +12,54 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AppointmentServiceImpl implements AppointmentService {
 
-    @Autowired
-    private AppointmentRepository appointmentRepository;
+    private final AppointmentRepository appointmentRepository;
+    private final PetRepository petRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private PetRepository petRepository;
-
-    @Autowired
-    private UserRepository userRepository;
+    public AppointmentServiceImpl(AppointmentRepository appointmentRepository, PetRepository petRepository, UserRepository userRepository) {
+        this.appointmentRepository = appointmentRepository;
+        this.petRepository = petRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
+    @Transactional
     public void save(Appointment appointment) {
         appointmentRepository.save(appointment);
     }
 
-    @Transactional
     @Override
+    @Transactional
     public void deleteById(Long id) {
         appointmentRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void book(Long petId, Long doctorId, LocalDate date, Integer interval, String mail) {
+        Appointment appointment = new Appointment();
+
+        appointment.setDoctor(userRepository.findById(doctorId).orElse(null));
+        appointment.setPet(petRepository.findById(petId).orElse(null));
+
+        appointment.setDay(date);
+        appointment.setInterval(interval);
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    @Transactional
+    public void update(Appointment appointment) {
+        appointmentRepository.save(appointment);
+    }
+
+    @Override
+    public Appointment findById(Long appointmentId) {
+        return appointmentRepository.findById(appointmentId).orElse(null);
     }
 
     @Override
@@ -60,42 +82,18 @@ public class AppointmentServiceImpl implements AppointmentService {
     }
 
     @Override
-    public void book(Long petId, Long doctorId, LocalDate date, Integer interval, String mail) {
-        Appointment appointment = new Appointment();
-
-        appointment.setDoctor(userRepository.findById(doctorId).orElse(null));
-        appointment.setPet(petRepository.findById(petId).orElse(null));
-
-        appointment.setDay(date);
-        appointment.setInterval(interval);
-        appointmentRepository.save(appointment);
-    }
-
-    @Override
     public List<Appointment> findAllByPetId(Long petId) {
         return appointmentRepository.findByPetIdOrderByDayAscIntervalAsc(petId);
     }
 
     @Override
-    public List<Appointment> findAllByDoctorId(Long doctorId) {
-        return appointmentRepository.findByDoctorIdOrderByDayAscIntervalAsc(doctorId);
+    public List<Appointment> findAllByOwnerEmail(String ownerEmail) {
+        return appointmentRepository.findAllByOwnerEmail(ownerEmail);
     }
 
     @Override
-    public Appointment findById(Long appointmentId) {
-
-        Appointment appointment = appointmentRepository.findById(appointmentId).orElse(null);
-        return appointment;
-    }
-
-    @Override
-    public void update(Appointment appointment) {
-        appointmentRepository.save(appointment);
-    }
-
-    @Override
-    public List<Appointment> findAllByOwnerId(Long userId) {
-        return appointmentRepository.findByOwnerId(userId);
+    public List<Appointment> findAllByDoctorEmail(String doctorEmail) {
+        return appointmentRepository.findAllByDoctorEmail(doctorEmail);
     }
 
 

@@ -1,7 +1,6 @@
 package com.finalproject.repository;
 
 import com.finalproject.entity.Appointment;
-import com.finalproject.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,11 +15,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 
     List<Appointment> findByPetIdOrderByDayAscIntervalAsc(Long petId);
 
-    @Query("SELECT a FROM Appointment a ORDER BY a.day ASC, a.interval ASC")
-    List<Appointment> findAllOrderByDayAscIntervalAsc();
+    @Query("SELECT a FROM Appointment a WHERE a.pet.owner.email = :ownerEmail ORDER BY a.day ASC, a.interval ASC")
+    List<Appointment> findAllByOwnerEmail(@Param("ownerEmail") String ownerEmail);
 
-    List<Appointment> findByDoctorIdOrderByDayAscIntervalAsc(Long doctorId);
-
-    @Query("SELECT a FROM Appointment a WHERE a.pet.owner.id = :ownerId ORDER BY a.day ASC, a.interval ASC")
-    List<Appointment> findByOwnerId(@Param("ownerId") Long ownerId);
+    @Query("SELECT a FROM Appointment a WHERE a.doctor.email = :doctorEmail ORDER BY a.day ASC, a.interval ASC")
+    List<Appointment> findAllByDoctorEmail(@Param("doctorEmail") String doctorEmail);
 }

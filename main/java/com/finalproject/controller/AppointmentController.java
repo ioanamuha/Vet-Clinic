@@ -1,12 +1,7 @@
 package com.finalproject.controller;
 
 import com.finalproject.entity.*;
-import com.finalproject.service.AppointmentService;
-import com.finalproject.service.DoctorDetailsService;
-import com.finalproject.service.MedicalConditionService;
-import com.finalproject.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
+import com.finalproject.service.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,17 +15,17 @@ import java.util.*;
 @RequestMapping("/appointments")
 public class AppointmentController {
 
-    @Autowired
-    private AppointmentService appointmentService;
+    private final AppointmentService appointmentService;
+    private final DoctorDetailsService doctorDetailsService;
+    private final MedicalFileService medicalFileService;
+    private final PetService petService;
+    public AppointmentController(AppointmentService appointmentService, DoctorDetailsService doctorDetailsService, MedicalFileService medicalFileService, PetService petService) {
+        this.appointmentService = appointmentService;
+        this.doctorDetailsService = doctorDetailsService;
+        this.medicalFileService = medicalFileService;
+        this.petService = petService;
+    }
 
-    @Autowired
-    private DoctorDetailsService doctorDetailsService;
-
-    @Autowired
-    private MedicalConditionService medicalConditionService;
-
-    @Autowired
-    private UserService userService;
 
     @GetMapping("/new")
     public String showNewAppointmentForm(@RequestParam("petId") Long petId,
@@ -57,7 +52,7 @@ public class AppointmentController {
 
         model.addAttribute("petId", petId);
         model.addAttribute("next30Days", generateNext30Days());
-        return "appointments/new-appointment";
+        return "/pets/appointments/new-appointment";
     }
 
     @PostMapping("/book")
@@ -67,7 +62,7 @@ public class AppointmentController {
                                   @RequestParam("interval") int interval,
                                   Principal principal) {
         appointmentService.book(petId, doctorId, date, interval, principal.getName());
-        return "redirect:/pets/myPets";
+        return "redirect:/pets";
     }
 
     @GetMapping("/petAppointments")
@@ -75,120 +70,40 @@ public class AppointmentController {
                                    Model model) {
         List<Appointment> appointments = appointmentService.findAllByPetId(petId);
         model.addAttribute("appointments", appointments);
-        return "appointments/pet-appointments";
+        return "pets/appointments/pet-appointments";
     }
-
 
     @GetMapping("/cancel")
     public String delete(@RequestParam("appointmentId") Long theId) {
 
-        if(appointmentService.findById(theId).getMedicalCondition()!=null) {
-            medicalConditionService.deleteById(appointmentService.findById(theId).getMedicalCondition().getId());
+        if(medicalFileService.findByAppointmentId(theId)!=null) {
+            medicalFileService.deleteById(medicalFileService.findByAppointmentId(theId).getId());
         }
         appointmentService.deleteById(theId);
         return "redirect:/appointments/allAppointments";
     }
 
-    @GetMapping("/doctorCancel")
-    public String deleteFromDoctor(@RequestParam("appointmentId") Long theId) {
-
-        if(appointmentService.findById(theId).getMedicalCondition()!=null) {
-            medicalConditionService.deleteById(appointmentService.findById(theId).getMedicalCondition().getId());
-        }
-        appointmentService.deleteById(theId);
-        return "redirect:/appointments/doctorAppointments";
-    }
-
     @GetMapping("/cancelFromPet")
     public String deleteFromPet(@RequestParam("appointmentId") Long theId) {
 
-        Pet pet = appointmentService.findById(theId).getPet();
+        Long petId = petService.findByAppointmentId(theId).getId();
 
-        if(appointmentService.findById(theId).getMedicalCondition()!=null) {
-            medicalConditionService.deleteById(appointmentService.findById(theId).getMedicalCondition().getId());
+        if(medicalFileService.findByAppointmentId(theId)!=null) {
+            medicalFileService.deleteById(medicalFileService.findByAppointmentId(theId).getId());
         }
 
         appointmentService.deleteById(theId);
-        return "redirect:/appointments/petAppointments?petId=" + pet.getId();
+        return "redirect:/appointments/petAppointments?petId=" + petId;
     }
 
     @GetMapping("/allAppointments")
     public String listAllAppointments(Model model) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String doctorEmail = authentication.getName();
-        User owner = userService.findByEmail(doctorEmail);
-        Long ownerId = owner.getId();
+        String ownerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        List<Appointment> appointments = appointmentService.findAllByOwnerId(ownerId);
+        List<Appointment> appointments = appointmentService.findAllByOwnerEmail(ownerEmail);
         model.addAttribute("appointments", appointments);
-        return "appointments/all-appointments";
-    }
-
-    @GetMapping("/doctorAppointments")
-    public String listDoctorAppointments(Model model) {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String doctorEmail = authentication.getName();
-        User doctor = userService.findByEmail(doctorEmail);
-        Long doctorId = doctor.getId();
-
-        List<Appointment> appointments = appointmentService.findAllByDoctorId(doctorId);
-        model.addAttribute("appointments", appointments);
-        return "appointments/doctor-appointments.html";
-    }
-
-    @GetMapping("/updateAppointment")
-    public String updateAppointmentPage(@RequestParam("appointmentId") Long appointmentId,
-                                        @RequestParam(value = "date", required = false) LocalDate date,
-                                        Model model) {
-        Appointment appointment = appointmentService.findById(appointmentId);
-
-        model.addAttribute("selectedDate", date);
-        
-        if (date != null) {
-            List<Appointment> slots = appointmentService.getAvailableSlots(appointment.getDoctor().getId(), date);
-            model.addAttribute("slots", slots);
-            model.addAttribute("selectedDate", date);
-        }
-
-        model.addAttribute("next30Days", generateNext30Days());
-        model.addAttribute("appointment", appointment);
-        return "appointments/update-appointment";
-    }
-
-    @PostMapping("/updateAppointment")
-    public String updateAppointment(@RequestParam("appointmentId") Long appointmentId,
-                                    @RequestParam("newDay") LocalDate newDay,
-                                    @RequestParam("newInterval") int newInterval,
-                                    Model model) {
-
-        Appointment appointment = appointmentService.findById(appointmentId);
-        appointment.setInterval(newInterval);
-        appointment.setDay(newDay);
-        appointmentService.update(appointment);
-
-        return "redirect:/appointments/doctorAppointments";
-    }
-
-    @GetMapping("/medicalFile")
-    public String showMedicalFile(@RequestParam("appointmentId") Long appointmentId, Model model) {
-        Appointment appointment = appointmentService.findById(appointmentId);
-        if (appointment.getMedicalCondition() == null) {
-            MedicalCondition medicalCondition = new MedicalCondition();
-            medicalCondition.setAppointment(appointment);
-            appointment.setMedicalCondition(medicalCondition);
-        }
-        model.addAttribute("appointment", appointment);
-        return "appointments/medical-file";
-    }
-
-    @PostMapping("/medicalFileUpdate")
-    public String updateMedicalFile(@ModelAttribute("appointment") Appointment appointment) {
-
-        MedicalCondition medicalCondition = appointment.getMedicalCondition();
-        medicalConditionService.update(medicalCondition);
-        return "redirect:/appointments/doctorAppointments";
+        return "/pets/appointments/all-appointments";
     }
 
     private List<LocalDate> generateNext30Days() {

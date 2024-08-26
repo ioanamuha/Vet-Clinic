@@ -3,8 +3,8 @@ package com.finalproject.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "docdet_trial")
-public class DoctorDetails {
+@Table(name = "doctor_details")
+public class  DoctorDetails {
 
     @Id
     @Column(name = "id")

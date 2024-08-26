@@ -7,9 +7,11 @@ import java.util.List;
 
 public interface PetService {
     List<Pet> findByOwner(User user);
-    void save(Pet pet);
-    Pet findById(long id);
-    void deleteById(long id);
+    List<Pet> findByOwnerEmail(String ownerEmail);
     List<Pet> findAll();
+    Pet findByAppointmentId(Long appointmentId);
+    Pet findById(long id);
+    void save(Pet pet);
+    void deleteById(long id);
     void update(Pet pet);
 }

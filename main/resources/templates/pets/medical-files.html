@@ -11,7 +11,7 @@
       padding-top: 56px;
     }
     .container {
-      background: white;
+      background: rgba(255, 255, 255, 0.9);
       padding: 2rem;
       border-radius: 8px;
       box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
@@ -24,9 +24,15 @@
       text-align: center;
       margin-top: 1rem;
     }
+    .float-style {
+      display: flex;
+      float: right;
+      padding-right: 100px;
+    }
   </style>
 </head>
 <body>
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
   <div class="container-fluid">
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -38,13 +44,19 @@
           <a class="nav-link" th:href="@{/about}">About Us</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" th:href="@{/users/account}">Account</a>
+          <a class="nav-link" th:href="@{/account}">Account</a>
         </li>
         <li class="nav-item" sec:authorize="hasRole('PETOWNER')">
-          <a class="nav-link" th:href="@{/pets/myPets}">My Pets</a>
+          <a class="nav-link" th:href="@{/pets}">My Pets</a>
         </li>
         <li class="nav-item" sec:authorize="hasRole('DOCTOR')">
-          <a class="nav-link" th:href="@{/appointments/doctorAppointments}">My Appointments</a>
+          <a class="nav-link" th:href="@{/doctor/appointments}">My Appointments</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+          <a class="nav-link" th:href="@{/admin/userList}">User Directory</a>
+        </li>
+        <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+          <a class="nav-link" th:href="@{/admin/petList}">Pet Directory</a>
         </li>
         <li class="nav-item">
           <form th:action="@{/logout}" method="post" class="nav-link">
@@ -54,36 +66,46 @@
       </ul>
     </div>
   </div>
+  <div class="float-style">
+    <strong>Account: </strong> <span sec:authentication="principal.username"></span>
+  </div>
 </nav>
+
 <div class="container">
   <h1>Pet Medical File</h1>
   <form th:action="@{/pets/medicalFiles}" th:object="${medicalFiles}" method="GET">
-    <a th:href="@{/pets/myPets}" class="btn btn-primary btn-sm btn-custom">Go Back</a>
-    <table class="table table-striped mt-3">
-      <thead class="table-dark">
-      <tr>
-        <th>Medical Condition</th>
-        <th>Medical Prescription</th>
-        <th>Appointment Date</th>
-        <th>Hour Interval</th>
-        <th>Doctor</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="medicalFile : ${medicalFiles}">
-        <td th:text="${medicalFile.medicalCondition}">Medical Condition</td>
-        <td th:text="${medicalFile.medicalPrescription}">Medical Prescription</td>
-        <td th:text="${medicalFile.appointment.day}">Appointment Date</td>
-        <td th:switch="${medicalFile.appointment.interval}">
-          <span th:case="1">08:00-10:00</span>
-          <span th:case="2">10:00-12:00</span>
-          <span th:case="3">14:00-16:00</span>
-          <span th:case="4">16:00-18:00</span>
-        </td>
-        <td th:text="${medicalFile.appointment.doctor.getFullName()}">Doctor</td>
-      </tr>
-      </tbody>
-    </table>
+    <a th:href="@{/pets}" class="btn btn-primary btn-sm btn-custom">Go Back</a>
+    <div th:if="${medicalFiles.isEmpty()}">
+      <hr>
+      <p>There aren't any medical files registered.</p>
+    </div>
+    <div th:if="${!medicalFiles.isEmpty()}">
+      <table class="table table-striped mt-3">
+        <thead class="table-dark">
+        <tr>
+          <th>Medical Condition</th>
+          <th>Medical Prescription</th>
+          <th>Appointment Date</th>
+          <th>Hour Interval</th>
+          <th>Doctor</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="medicalFile : ${medicalFiles}">
+          <td th:text="${medicalFile.medicalCondition}">Medical Condition</td>
+          <td th:text="${medicalFile.medicalPrescription}">Medical Prescription</td>
+          <td th:text="${medicalFile.appointment.day}">Appointment Date</td>
+          <td th:switch="${medicalFile.appointment.interval}">
+            <span th:case="1">08:00-10:00</span>
+            <span th:case="2">10:00-12:00</span>
+            <span th:case="3">14:00-16:00</span>
+            <span th:case="4">16:00-18:00</span>
+          </td>
+          <td th:text="${medicalFile.appointment.doctor.getFullName()}">Doctor</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </form>
 </div>
 </body>

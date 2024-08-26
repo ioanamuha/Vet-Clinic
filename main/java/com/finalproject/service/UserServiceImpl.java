@@ -1,35 +1,105 @@
 package com.finalproject.service;
 
 import com.finalproject.entity.DoctorDetails;
+import com.finalproject.entity.Pet;
 import com.finalproject.entity.Role;
 import com.finalproject.entity.User;
 import com.finalproject.repository.DoctorDetailsRepository;
 import com.finalproject.repository.RoleRepository;
 import com.finalproject.repository.UserRepository;
-import jakarta.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private DoctorDetailsRepository doctorDetailsRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
+    private final DoctorDetailsRepository doctorDetailsRepository;
+    private final PetService petService;
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, RoleRepository roleRepository, DoctorDetailsRepository doctorDetailsRepository, PetService petService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
+        this.doctorDetailsRepository = doctorDetailsRepository;
+        this.petService = petService;
+    }
 
     @Override
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public void save(User theUser) {
+
+        String password=theUser.getPassword();
+        password=passwordEncoder.encode(password);
+
+        theUser.setPassword(password);
+        theUser.setEnabled(true);
+        theUser = userRepository.save(theUser);
+
+        DoctorDetails doctorDetails = new DoctorDetails();
+        doctorDetails.setUser(theUser);
+        doctorDetails.setSpecializare("");
+        doctorDetailsRepository.save(doctorDetails);
+
+        Role userRole = new Role();
+        userRole.setRole("ROLE_PETOWNER");
+        userRole.setUser(theUser);
+
+        roleRepository.save(userRole);
+    }
+
+    @Override
+    @Transactional
+    public void save(User theUser, String theRole) {
+
+        String password=theUser.getPassword();
+        password=passwordEncoder.encode(password);
+
+        theUser.setPassword(password);
+        theUser.setEnabled(true);
+        theUser = userRepository.save(theUser);
+
+        DoctorDetails doctorDetails = new DoctorDetails();
+        doctorDetails.setUser(theUser);
+        doctorDetails.setSpecializare("");
+        doctorDetailsRepository.save(doctorDetails);
+
+        Role userRole = new Role();
+        userRole.setRole(theRole);
+        userRole.setUser(theUser);
+
+        roleRepository.save(userRole);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(long theId) {
+        User user = userRepository.findById(theId).orElse(null);
+        if(user != null ) {
+            List<Pet> pets = user.getPets();
+            for (Pet pet : pets) {
+                if (pet != null) {
+                    petService.deleteById(pet.getId());
+                }
+            }
+            userRepository.deleteById(theId);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void update(User theUser) {
+
+        String password=theUser.getPassword();
+        password=passwordEncoder.encode(password);
+        theUser.setPassword(password);
+        theUser.setEnabled(true);
+        userRepository.save(theUser);
     }
 
     @Override
@@ -42,35 +112,38 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(theEmail);
     }
 
-    @Override
-    public void save(User theUser) {
-        theUser.setPassword("{noop}" + theUser.getPassword());
-        theUser.setEnabled(true);
-        userRepository.save(theUser);
-
-        Role userRole = new Role();
-        userRole.setRole("ROLE_PETOWNER");
-        userRole.setUser(theUser);
-
-        roleRepository.save(userRole);
+   @Override
+    public User findByPetId(Long petId) {
+        return userRepository.findByPetId(petId);
     }
 
     @Override
-    public void deleteById(long theId) {
-        userRepository.deleteById(theId);
+    public List<User> findAll() {
+        return userRepository.findAll();
     }
 
     @Override
-    public void update(User theUser) {
-        theUser.setPassword("{noop}" + theUser.getPassword());
-        theUser.setEnabled(true);
-        userRepository.save(theUser);
+    public List<User> findAllPetOwners() {
+
+        List<User> petOwners = new ArrayList<>();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if(user.getRole().getRole().equals("ROLE_PETOWNER")) {
+                petOwners.add(user);
+            }
+        }
+        return petOwners;
     }
 
     @Override
-    public DoctorDetails findDoctorDetailsByUserId(long theId) {
-        return doctorDetailsRepository.findByUserId(theId);
+    public List<User> findAllDoctors() {
+        List<User> doctors = new ArrayList<>();
+        List<User> users = userRepository.findAll();
+        for (User user : users) {
+            if(user.getRole().getRole().equals("ROLE_DOCTOR")) {
+                doctors.add(user);
+            }
+        }
+        return doctors;
     }
-
-
 }

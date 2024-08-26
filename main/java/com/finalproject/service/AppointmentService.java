@@ -11,17 +11,17 @@ public interface AppointmentService {
 
     void deleteById(Long id);
 
-    List<Appointment> getAvailableSlots(Long doctorId, LocalDate date);
-
     void book(Long petId, Long doctorId, LocalDate date, Integer interval, String mail);
-
-    List<Appointment> findAllByPetId(Long petId);
-
-    List<Appointment> findAllByDoctorId(Long doctorId);
-
-    Appointment findById(Long appointmentId);
 
     void update(Appointment appointment);
 
-    List<Appointment> findAllByOwnerId(Long userId);
+    Appointment findById(Long appointmentId);
+
+    List<Appointment> getAvailableSlots(Long doctorId, LocalDate date);
+
+    List<Appointment> findAllByPetId(Long petId);
+
+    List<Appointment> findAllByOwnerEmail(String ownerEmail);
+
+    List<Appointment> findAllByDoctorEmail(String doctorEmail);
 }

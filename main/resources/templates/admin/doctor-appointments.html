@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>About Us</title>
+    <title>My Appointments</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous" />
     <link th:href="@{/styles/main.css}" rel="stylesheet" />
 </head>
@@ -47,24 +46,47 @@
     </div>
 </nav>
 
-<div class="container">
-    <h2>About Us</h2>
-    <hr>
-    <h4>
-        <i>Where Pets are Family</i>
-    </h4>
-    <hr>
-    <p>
-        Hello! Thank you for visiting our Vet Clinic. ❤️
-    </p>
-    <p>
-        Dr. Mara Elena, Dr. Corina Samson and our veterinarians offer quality animal care.
-        Our friendly vet clinic specializes in veterinarian services for dogs, cats, companion, and exotic animals.
-        Both pet owners and animals appreciate the compassionate care given by our experienced staff.
-        Our veterinarians are passionate about making sure your pet receives the best care possible!
-        The entire staff is dedicated to keeping your pets healthy and happy!
-        Contact our veterinarians for more information, and experience the very best in veterinary care.
-    </p>
+<div class="appointments-container">
+    <h2>The Appointments</h2>
+    <strong>Doctor: </strong><a th:text="${doctor.getFullName()}"></a>
+    <div th:if="${appointments.isEmpty()}">
+        <hr>
+        <p>There aren't any appointments registered.</p>
+    </div>
+    <div th:if="${!appointments.isEmpty()}">
+        <hr>
+        <table class="table table-striped mt-3">
+            <thead class="table-dark">
+            <tr>
+                <th>Pet Name</th>
+                <th>Pet Owner</th>
+                <th>Date</th>
+                <th>Hour</th>
+                <th>Modify</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="appointment : ${appointments}">
+                <td th:text="${appointment.pet.getName()}">Pet Name</td>
+                <td th:text="${appointment.pet.getOwner().getFullName}">Pet Owner</td>
+                <td th:text="${appointment.day}">Date</td>
+                <td th:switch="${appointment.interval}">
+                    <span th:case="1">08:00-10:00</span>
+                    <span th:case="2">10:00-12:00</span>
+                    <span th:case="3">14:00-16:00</span>
+                    <span th:case="4">16:00-18:00</span>
+                </td>
+                <td>
+                    <a th:href="@{/doctor/update(appointmentId=${appointment.id})}" class="btn btn-info btn-sm">Update</a>
+                    <a th:href="@{/doctor/medicalFile(appointmentId=${appointment.id})}" class="btn btn-info btn-sm">Medical File</a>
+                    <a th:href="@{/doctor/cancel(appointmentId=${appointment.id})}" class="btn btn-danger btn-sm" onclick="if (!(confirm('Are you sure you want to cancel this appointment?'))) return false">Cancel</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a th:href="@{/admin/userList}" class="btn btn-primary btn-sm">Go Back</a>
 </div>
+
 </body>
 </html>

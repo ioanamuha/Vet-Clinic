@@ -1,31 +1,60 @@
-
 body {
     background: linear-gradient(to right, #10006d, #692e93);
-    min-height: 100vh;
     padding-top: 56px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .container {
-    background: whitesmoke;
+    background: rgba(255, 255, 255, 0.9);
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
     max-width: 500px;
-    margin-top: 20px;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
-.mt-3 a {
-    display: block;
-    text-align: center;
-    margin-top: 1rem;
-}
+
 .btn-custom {
     margin-bottom: 10px;
     margin-right: 5px;
 }
-.home-container {
+
+.btn-secondary, .btn-primary {
+    width: 100%;
+}
+
+.home-container, .appointments-container {
     background: white;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
     max-width: 1000px;
+    width: 100%;
+    max-height: 1000px;
     margin-top: 20px;
 }
+
+.medical-file-container, .update-medical-file-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+.back-to-appointments a {
+    display: block;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.float-style {
+    display: flex;
+    float: right;
+    padding-right: 100px;
+}
+

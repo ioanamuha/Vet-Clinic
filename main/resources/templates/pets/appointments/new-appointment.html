@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Book Appointment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(to right, #10006d, #692e93);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 70px;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            max-width: 800px;
+            width: 100%;
+        }
+        .container h2 {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .form-select, .btn-primary {
+            width: 100%;
+        }
+        .btn-primary, .btn-secondary {
+            margin-top: 1rem;
+        }
+        table {
+            width: 100%;
+            margin-top: 1rem;
+        }
+        table th, table td {
+            padding: 0.75rem;
+            text-align: center;
+        }
+        .table-container {
+            margin-top: 1rem;
+        }
+        .float-style {
+            display: flex;
+            float: right;
+            padding-right: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+    <div class="container-fluid">
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/home}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/about}">About Us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/account}">Account</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('PETOWNER')">
+                    <a class="nav-link" th:href="@{/pets}">My Pets</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('DOCTOR')">
+                    <a class="nav-link" th:href="@{/doctor/appointments}">My Appointments</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/userList}">User Directory</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                    <a class="nav-link" th:href="@{/admin/petList}">Pet Directory</a>
+                </li>
+                <li class="nav-item">
+                    <form th:action="@{/logout}" method="post" class="nav-link">
+                        <button type="submit" class="btn btn-link nav-link" style="padding: 0;">Logout</button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="float-style">
+        <strong>Account: </strong> <span sec:authentication="principal.username"></span>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>Book Appointment</h2>
+    <form id="appointmentForm" th:action="@{/appointments/new}" method="get">
+        <input type="hidden" name="petId" th:value="${petId}" />
+        <div class="mb-3">
+            <label for="specialization" class="form-label">Select Doctor Specialization</label>
+            <select id="specialization" name="specialization" class="form-select" required>
+                <option value="" disabled th:selected="${selectedSpecialization == null}">Select a doctor specialization</option>
+                <option th:each="specialization : ${specializations}" th:value="${specialization}"
+                        th:text="${specialization}" th:selected="${specialization == selectedSpecialization}">
+                </option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filter Doctors</button>
+    </form>
+
+    <form id="slotForm" th:if="${!#lists.isEmpty(doctors)}" th:action="@{/appointments/new}" method="get">
+        <input type="hidden" th:name="petId" th:value="${petId}" />
+        <input type="hidden" th:name="specialization" th:value="${selectedSpecialization}" />
+        <div class="mb-3">
+            <label for="doctor" class="form-label">Select Doctor</label>
+            <select id="doctor" name="doctorId" class="form-select" required>
+                <option value="" disabled>Select a doctor</option>
+                <option th:each="doctor : ${doctors}" th:value="${doctor.user.id}"
+                        th:text="${doctor.user.getFullName()}" th:selected="${doctor.user.id == selectedDoctorId}">
+                </option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="date" class="form-label">Select Date</label>
+            <select id="date" name="date" class="form-select" required>
+                <option value="" disabled>Select a date</option>
+                <option th:each="date : ${next30Days}" th:value="${date}" th:text="${date}" th:selected="${date == selectedDate}"></option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">View Slots</button>
+    </form>
+
+    <div th:if="${slots != null}" class="table-container">
+        <h3>Available Slots for <span th:text="${selectedDate}"></span></h3>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="slot : ${slots}">
+                <td th:switch="${slot.interval}">
+                    <span th:case="1">08:00-10:00</span>
+                    <span th:case="2">10:00-12:00</span>
+                    <span th:case="3">14:00-16:00</span>
+                    <span th:case="4">16:00-18:00</span>
+                </td>
+                <td th:text="${slot.day}"></td>
+                <td>
+                    <form th:action="@{/appointments/book}" method="POST">
+                        <input type="hidden" name="petId" th:value="${petId}" />
+                        <input type="hidden" name="doctorId" th:value="${slot.doctor.id}" />
+                        <input type="hidden" name="date" th:value="${slot.day}" />
+                        <input type="hidden" name="interval" th:value="${slot.interval}" />
+                        <button type="submit" class="btn btn-success">Book Now</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <a th:href="@{/pets}" class="btn btn-secondary">Go Back</a>
+</div>
+</body>
+</html>

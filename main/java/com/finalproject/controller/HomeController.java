@@ -1,46 +1,39 @@
 package com.finalproject.controller;
 
-import com.finalproject.entity.DoctorDetails;
 import com.finalproject.entity.User;
+import com.finalproject.service.DoctorDetailsService;
 import com.finalproject.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.util.List;
+
 @Controller
 public class HomeController {
 
-
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final DoctorDetailsService doctorDetailsService;
+    public HomeController(UserService userService, DoctorDetailsService doctorDetailsService) {
+        this.userService = userService;
+        this.doctorDetailsService = doctorDetailsService;
+    }
 
     @GetMapping("/home")
     public String showHome(Model model) {
+        String doctorEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // Get the logged-in user's email
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserName = authentication.getName();
+        List<User> doctors = userService.findAllDoctors();
+        model.addAttribute("doctors", doctors);
 
-        // Fetch user details from the database
-        User user = userService.findByEmail(currentUserName);
-        model.addAttribute("user", user);
-
-        // Check if the user has the role of doctor and fetch specialization if they do
-        if (user.getRoles().stream().anyMatch(role -> role.getRole().equals("ROLE_DOCTOR"))) {
-            DoctorDetails doctorDetails = userService.findDoctorDetailsByUserId(user.getId());
-            if (doctorDetails != null) {
-                model.addAttribute("specializare", doctorDetails.getSpecializare());
-            }
-        }
+        String specialization = doctorDetailsService.findSpecializationByUserEmail(doctorEmail);
+        model.addAttribute("specialization", specialization);
 
         return "home";
     }
 
-
-    @GetMapping("about")
+    @GetMapping("/about")
     public String about() {
         return "about";
     }
